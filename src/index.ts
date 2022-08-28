@@ -21,6 +21,7 @@ async function createChannelInvite(env: Env): Promise<{ code: string }> {
   const headers = new Headers();
   headers.set("Authorization", `Bot ${env.DISCORD_BOT_TOKEN}`);
   headers.set("Content-Type", "application/json;charset=utf-8");
+  headers.set("Cache-Control", "no-cache");
 
   const response = await fetch(
     `https://discord.com/api/v10/channels/${env.DISCORD_CHANNEL_ID}/invites`,
