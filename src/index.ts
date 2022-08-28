@@ -54,6 +54,7 @@ export default {
       // temporary redirect
       return Response.redirect(`https://discord.gg/${invite.code}`, 307);
     } catch (e) {
+      console.error(e);
       const headers = new Headers();
       headers.set("Content-Type", "text/html;charset-utf-8");
       headers.set("Cache-Control", "no-cache");
