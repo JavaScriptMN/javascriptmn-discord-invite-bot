@@ -47,11 +47,7 @@ async function createChannelInvite(env: Env): Promise<{ code: string }> {
 }
 
 export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     try {
       const invite = await createChannelInvite(env);
 
@@ -60,6 +56,7 @@ export default {
     } catch (e) {
       const headers = new Headers();
       headers.set("Content-Type", "text/html;charset-utf-8");
+      headers.set("Cache-Control", "no-cache");
 
       return new Response(errorMarkup, {
         headers,
