@@ -1,3 +1,7 @@
+// This isn't ESM spec, but the CloudFlare environment allows us to import HTML files
+// @ts-ignore
+import errorMarkup from "./error.html";
+
 /**
  * Welcome to Cloudflare Workers! This is your first worker.
  *
@@ -9,14 +13,36 @@
  */
 
 export interface Env {
-  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
-  //
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  // MY_DURABLE_OBJECT: DurableObjectNamespace;
-  //
-  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-  // MY_BUCKET: R2Bucket;
+  DISCORD_BOT_TOKEN: string;
+  DISCORD_CHANNEL_ID: string;
+}
+
+async function createChannelInvite(env: Env): Promise<{ code: string }> {
+  const headers = new Headers();
+  headers.set("Authorization", `Bot ${env.DISCORD_BOT_TOKEN}`);
+  headers.set("Content-Type", "application/json;charset=utf-8");
+
+  const response = await fetch(
+    `https://discord.com/api/v10/channels/${env.DISCORD_CHANNEL_ID}/invites`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        // 1 hour, in seconds
+        max_age: 60 * 60,
+        max_uses: 1,
+        temporary: false,
+        unique: true,
+      }),
+      headers,
+    }
+  );
+
+  if (response.ok) {
+    return await response.json();
+  } else {
+    console.error(response);
+    throw new Error("Error fetching channel invite from Discord");
+  }
 }
 
 export default {
@@ -25,6 +51,18 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    return new Response("Hello World!");
+    try {
+      const invite = await createChannelInvite(env);
+
+      // temporary redirect
+      return Response.redirect(`https://discord.gg/${invite.code}`, 307);
+    } catch (e) {
+      const headers = new Headers();
+      headers.set("Content-Type", "text/html;charset-utf-8");
+
+      return new Response(errorMarkup, {
+        headers,
+      });
+    }
   },
 };

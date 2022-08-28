@@ -1,3 +1,10 @@
-name = "javascriptmn-invite-bot"
+name = "javascriptmn-discord-invite-bot"
 main = "src/index.ts"
 compatibility_date = "2022-08-28"
+
+[vars]
+# welcome-and-rules channel
+DISCORD_CHANNEL_ID = "1013250186333650966"
+
+# run the following to set up the secret env vars
+# echo <VALUE> | wrangler secret put DISCORD_BOT_TOKEN
